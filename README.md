@@ -33,3 +33,15 @@ export class ApiController {
   }
 }
 ```
+
+### @HostParam 을 이용한 서브도메인 동적 할당
+
+```ts
+@Controller({ host: ':version.api.localhost' })
+export class ApiController {
+  @Get()
+  index(@HostParam('version') version: string): string {
+    return `Hello, API ${version}`;
+  }
+}
+```
