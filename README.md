@@ -45,3 +45,7 @@ export class ApiController {
   }
 }
 ```
+
+## Payload 다루기
+
+nest는 payload를 dto로 다룸
