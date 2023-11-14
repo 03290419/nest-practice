@@ -49,3 +49,7 @@ export class ApiController {
 ## Payload 다루기
 
 nest는 payload를 dto로 다룸
+
+## joi 모듈
+
+환경 변수의 유효성 검사에 사용
