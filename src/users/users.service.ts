@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EmailService } from 'src/email/email.service';
 import * as uuid from 'uuid';
+import { UserInfo } from './UserInfo';
 
 @Injectable()
 export class UserService {
