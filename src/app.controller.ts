@@ -1,13 +1,6 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Param,
-  ParseIntPipe,
-  Query,
-  Redirect,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, Redirect } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from 'validation.pipe';
 import { AppService } from './app.service';
 
 @Controller()
@@ -31,12 +24,11 @@ export class AppController {
 
   @Get(':id')
   findOne(
-    @Param(
-      'id',
-      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
-    )
+    @Param('id', ValidationPipe)
     id: number,
   ) {
+    console.log(typeof id);
+
     return { message: id };
   }
 }
