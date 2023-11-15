@@ -27,8 +27,6 @@ export class AppController {
     @Param('id', ValidationPipe)
     id: number,
   ) {
-    console.log(typeof id);
-
     return { message: id };
   }
 }
