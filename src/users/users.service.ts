@@ -1,7 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmailService } from 'src/email/email.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ulid } from 'ulid';
 import * as uuid from 'uuid';
 import { UserInfo } from './UserInfo';
@@ -12,6 +16,7 @@ export class UserService {
   constructor(
     private emailService: EmailService,
     @InjectRepository(User) private usersRepository: Repository<User>,
+    private dataSource: DataSource,
   ) {}
   async createUser(name: string, email: string, password: string) {
     const userExist = await this.checkUserExist(email);
@@ -19,14 +24,22 @@ export class UserService {
       throw new BadRequestException('해당 email로는 가입할 수 없습니다.');
     }
     const signupVerifyToken = uuid.v1();
-    await this.saveUser(name, email, password, signupVerifyToken);
+    // await this.saveUser(name, email, password, signupVerifyToken);
+    await this.saveUserUsingQueryRunner(
+      name,
+      email,
+      password,
+      signupVerifyToken,
+    );
     await this.sendMemberJoinEmail(email, signupVerifyToken);
   }
   private async checkUserExist(email: string): Promise<boolean> {
     const user = await this.usersRepository.findOne({
       where: { email },
     });
-    return user !== undefined;
+    console.log(user);
+
+    return Boolean(user);
   }
   private async saveUser(
     name: string,
@@ -42,6 +55,34 @@ export class UserService {
     user.signupVerifyToken = signupVerifyToken;
     await this.usersRepository.save(user);
     return { message: 'ok' };
+  }
+  private async saveUserUsingQueryRunner(
+    name: string,
+    email: string,
+    password: string,
+    signupVerifyToken: string,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const user = new User();
+      user.id = ulid();
+      user.name = name;
+      user.email = email;
+      user.password = password;
+      user.signupVerifyToken = signupVerifyToken;
+
+      await queryRunner.manager.save(user);
+
+      throw new InternalServerErrorException();
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
   private async sendMemberJoinEmail(email: string, signupVerifyToken: string) {
     await this.emailService.sendMemberJoinVerification(
