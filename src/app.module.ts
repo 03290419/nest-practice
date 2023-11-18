@@ -1,10 +1,16 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import emailConfig from './config/email.config';
 import { validationSchema } from './config/validationSchema';
+import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { UsersModule } from './users/users.module';
 
 // .forRoot 메서드는 DynamicModule을 리턴하는 정적 메서드다. 비동기 함수일 때는 forRootAsync, registerAsync로 한다.
@@ -31,7 +37,15 @@ import { UsersModule } from './users/users.module';
   controllers: [AppController],
   providers: [AppService, ConfigService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer
+      .apply(LoggerMiddleware)
+      .exclude({ path: '/users', method: RequestMethod.GET })
+      .forRoutes('/users');
+    // users 라우터에 바인딩 보통은 컨트롤러를 바인딩함
+  }
+}
 // @TODO envFilePath에 절대경로 넣고 dist 폴더에 .env 구성되게 수정
 /**
  * ConfigModule에서 load 속성을 통해 앞서 구성해둔 ConfigFactory를 지정
