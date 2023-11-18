@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import authConfig from './config/auth.config';
 import emailConfig from './config/email.config';
 import { validationSchema } from './config/validationSchema';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
@@ -19,7 +20,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     ConfigModule.forRoot({
       envFilePath: [`.${process.env.NODE_ENV}.env`],
-      load: [emailConfig],
+      load: [emailConfig, authConfig],
       isGlobal: true,
       validationSchema,
     }),
