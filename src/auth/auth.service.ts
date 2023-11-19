@@ -17,8 +17,6 @@ export class AuthService {
 
   login(user: User) {
     const payload = { ...user };
-    console.log(this.config.jwtSecret);
-
     return jwt.sign(payload, this.config.jwtSecret, {
       expiresIn: '1d',
       audience: 'example.com',
@@ -33,10 +31,11 @@ export class AuthService {
       ) &
         User;
 
-      const { id, email } = payload;
+      const { id, email, name } = payload;
 
       return {
         userId: id,
+        name,
         email,
       };
     } catch (err) {

@@ -10,12 +10,16 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    return this.validateRequest(request);
+    request.user = this.validateRequest(request);
+    // request.user = {
+    //   name: 1,
+    //   email: 'sdfsdf',
+    //   userId: '123123',
+    // };
+    return true;
   }
   private validateRequest(request: any) {
     const jwtString = request.headers.authorization.split('Bearer ')[1];
-
-    this.authService.verify(jwtString);
-    return true;
+    return this.authService.verify(jwtString);
   }
 }
