@@ -31,6 +31,7 @@ class UserEntity {
   email: string;
 }
 
+@Roles('user')
 @Controller('users')
 export class UsersController {
   constructor(
