@@ -11,6 +11,7 @@ import {
 import { IsString } from 'class-validator';
 import { AuthGuard } from 'src/auth.guard';
 import { AuthService } from 'src/auth/auth.service';
+import { Roles } from 'src/decorators/role.decorator';
 import { UserData } from 'src/decorators/user.decorator';
 import { ValidationPipe } from 'validation.pipe';
 import { UserInfo } from './UserInfo';
@@ -38,6 +39,7 @@ export class UsersController {
   ) {}
 
   @Post()
+  @Roles('admin')
   async createUser(@Body() dto: CreateUserDto): Promise<void> {
     const { name, email, password } = dto;
     return await this.userService.createUser(name, email, password);

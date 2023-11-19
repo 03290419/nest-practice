@@ -5,6 +5,7 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,6 +13,7 @@ import authConfig from './config/auth.config';
 import emailConfig from './config/email.config';
 import { validationSchema } from './config/validationSchema';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { RolesGuard } from './roles.guard';
 import { UsersModule } from './users/users.module';
 
 // .forRoot 메서드는 DynamicModule을 리턴하는 정적 메서드다. 비동기 함수일 때는 forRootAsync, registerAsync로 한다.
@@ -36,7 +38,14 @@ import { UsersModule } from './users/users.module';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, ConfigService],
+  providers: [
+    AppService,
+    ConfigService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
