@@ -2,6 +2,7 @@ import { Controller, Get, Param, Query, Redirect } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from 'validation.pipe';
 import { AppService } from './app.service';
+import { Roles } from './decorators/role.decorator';
 
 @Controller()
 export class AppController {
@@ -9,6 +10,8 @@ export class AppController {
     private readonly appService: AppService,
     private readonly configService: ConfigService,
   ) {}
+
+  @Roles('admin')
   @Get()
   getHello(): string {
     return this.appService.getHello();
