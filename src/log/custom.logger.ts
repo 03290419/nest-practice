@@ -1,19 +1,11 @@
-import { LoggerService } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 
-export class MyLogger implements LoggerService {
-  log(message: any, ...optionalParams: any[]) {
-    console.log(message);
+export class MyLogger extends ConsoleLogger {
+  error(message: any, stack?: string, context?: string) {
+    super.error.apply(this, arguments);
+    this.doSomething();
   }
-  error(message: any, ...optionalParams: any[]) {
-    console.log(message);
-  }
-  warn(message: any, ...optionalParams: any[]) {
-    console.log(message);
-  }
-  debug?(message: any, ...optionalParams: any[]) {
-    console.log(message);
-  }
-  verbose?(message: any, ...optionalParams: any[]) {
-    console.log(message);
+  private doSomething() {
+    // 로깅 부가작업 작성
   }
 }
