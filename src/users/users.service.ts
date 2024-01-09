@@ -1,11 +1,13 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
 import { EmailService } from 'src/email/email.service';
+import { MyLogger } from 'src/logger/custom-logger.service';
 import { DataSource, Repository } from 'typeorm';
 import { ulid } from 'ulid';
 import * as uuid from 'uuid';
@@ -19,6 +21,7 @@ export class UserService {
     @InjectRepository(User) private usersRepository: Repository<User>,
     private dataSource: DataSource,
     private authService: AuthService,
+    private myLogger: MyLogger,
   ) {}
   async createUser(name: string, email: string, password: string) {
     const userExist = await this.checkUserExist(email);
@@ -26,7 +29,6 @@ export class UserService {
       throw new BadRequestException('해당 email로는 가입할 수 없습니다.');
     }
     const signupVerifyToken = uuid.v1();
-    // await this.saveUser(name, email, password, signupVerifyToken);
     await this.saveUserUsingQueryRunner(
       name,
       email,
@@ -35,6 +37,16 @@ export class UserService {
     );
     await this.sendMemberJoinEmail(email, signupVerifyToken);
   }
+
+  async loggerTest() {
+    try {
+      throw new BadRequestException('요청이 잘못되었습니다.');
+    } catch (err) {
+      await this.myLogger.error(err.message, err.stack, 'UserCreationFunction');
+      throw err;
+    }
+  }
+
   private async checkUserExist(email: string): Promise<boolean> {
     const user = await this.usersRepository.findOne({
       where: { email },
@@ -80,6 +92,9 @@ export class UserService {
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(
+        '유저 생성 중 오류가 발생했습니다.',
+      );
     } finally {
       await queryRunner.release();
     }

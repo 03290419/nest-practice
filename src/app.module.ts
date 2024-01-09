@@ -12,6 +12,7 @@ import { AppService } from './app.service';
 import authConfig from './config/auth.config';
 import emailConfig from './config/email.config';
 import { validationSchema } from './config/validationSchema';
+import { LoggerModule } from './logger/logger.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { RolesGuard } from './roles.guard';
 import { UsersModule } from './users/users.module';
@@ -36,6 +37,7 @@ import { UsersModule } from './users/users.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
     }),
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [

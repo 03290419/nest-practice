@@ -59,6 +59,11 @@ export class UsersController {
     const { email, password } = dto;
     return await this.userService.login(email, password);
   }
+  @Roles('admin')
+  @Get('/log')
+  async logTest() {
+    await this.userService.loggerTest();
+  }
 
   @UseGuards(AuthGuard)
   @Get('/username1')
